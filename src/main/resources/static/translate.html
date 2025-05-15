@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Translation App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+        }
+        textarea, select, input[type="submit"] {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #results {
+            margin-top: 30px;
+        }
+
+        .output {
+            background: #f1f1f1;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Translation</h1>
+
+<form method="POST" action="http://localhost:8080/api/translate" id="translateForm">
+    <label for="text">Text to translate:</label>
+    <textarea id="text" name="text" rows="4" required></textarea>
+
+    <label for="source">Source Language (e.g., en):</label>
+    <input type="text" id="source" name="source" value="en" required>
+
+    <label for="target">Target Language (e.g., fr):</label>
+    <input type="text" id="target" name="target" value="fr" required>
+
+    <input type="submit" value="Translate">
+</form>
+
+<div id="results">
+    <div id="googleResult" class="output" style="display:none;">
+        <h3>Google Translation:</h3>
+        <p id="googleText"></p>
+    </div>
+<!--    <div id="openAIResult" class="output" style="display:none;">-->
+<!--        <h3>Post-Edited Translation (OpenAI):</h3>-->
+<!--        <p id="openAIText"></p>-->
+<!--    </div>-->
+</div>
+
+<script>
+    document.getElementById("translateForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+            const text = document.getElementById("text").value;
+            const source = document.getElementById("source").value;
+            const target = document.getElementById("target").value;
+            try {
+                const response = await fetch("/api/translate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        text: text, source:source, target:target })
+                }) ;
+
+                if(!response.ok){
+                    throw new Error("HTTP error "+response.status);
+                }
+
+
+                    const result = await response.json();
+                    console.log("Full response from backend:", result);
+
+                     const translatedText = result.data.translations[0].translatedText;
+
+
+                    document.getElementById("googleText").textContent = translatedText;
+                    // document.getElementById("openAIText").textContent = result.openAITranslation;
+
+                    document.getElementById("googleResult").style.display = "block";
+                    // document.getElementById("openAIResult").style.display = "block";
+
+            } catch (e) {
+                console.error("Exception during fetch:", e);
+                alert("Exception: " + e.message);
+            }
+
+    });
+
+</script>
+</body>
+</html>
