@@ -22,8 +22,6 @@ public class TranslationServiceImpl implements TranslationService {
     public String getGoogleTranslation(String text ,String source, String target) {
         String url = "https://translation.googleapis.com/language/translate/v2?key=" + cloudTranslationKey;
 
-
-
         String requestBody = String.format("""
             {
               "q": "%s",
@@ -40,11 +38,11 @@ public class TranslationServiceImpl implements TranslationService {
         ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
+            System.out.println(response.getBody());
             return response.getBody();
         } else {
             throw new RuntimeException("Translation failed: " + response.getStatusCode());
         }
-
 
     }
 
@@ -57,7 +55,6 @@ public class TranslationServiceImpl implements TranslationService {
         headers.set("Authorization", "Bearer " + openApiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Build the chat-style request body
         Map<String, Object> body = new HashMap<>();
         body.put("model", "gpt-3.5-turbo");
 
@@ -89,7 +86,7 @@ public class TranslationServiceImpl implements TranslationService {
     @Override
     public String translate(String text, String source, String target) {
         //return openAITranslation(getGoogleTranslation(text, source, target));
-        return getGoogleTranslation(text, source, target);
+         return getGoogleTranslation(text, source, target);
 
     }
 
